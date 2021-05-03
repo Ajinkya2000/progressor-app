@@ -1,0 +1,1 @@
+web: gunicorn --pythonpath backend  progressor_backend.wsgi --log-file -
