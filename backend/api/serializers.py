@@ -1,33 +1,44 @@
+from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User
-from django.contrib.auth import authenticate
+
+from .models import User, GFGData
 
 
-class RegisterSerializer(serializers.ModelSerializer):
+class RegisterUserSerializer(serializers.ModelSerializer):
     token = serializers.SerializerMethodField(read_only=True)
+    name = serializers.CharField(max_length=255, required=True)
 
     class Meta:
         model = User
-        fields = ['email', 'name', 'password', 'id', 'token']
-
-    def get_token(self, user):
-        token = RefreshToken.for_user(user)
-        return str(token.access_token)
+        fields = ('id', 'email', 'name', 'password', 'handle_verified', 'token',)
+        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
 
+    def update(self, instance, validated_data):
+        instance.email = validated_data.get('email', instance.email)
+        instance.name = validated_data.get('name', instance.name)
+        instance.handle_verified = validated_data.get('handle_verified', instance.handle_verified)
+        instance.save()
+        return instance
 
-class LoginUserSerializer(serializers.Serializer):
-    email = serializers.CharField(max_length=255)
-    password = serializers.CharField(max_length=128, write_only=True)
+    @staticmethod
+    def get_token(user):
+        token = RefreshToken.for_user(user)
+        return str(token.access_token)
+
+
+class LoginUserSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=255)
     name = serializers.CharField(max_length=255, read_only=True)
     token = serializers.SerializerMethodField(read_only=True)
 
-    def get_token(self, user):
-        token = RefreshToken.for_user(user)
-        return str(token.access_token)
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'name', 'password', 'handle_verified', 'token',)
+        extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, data):
         email = data.get('email', None)
@@ -41,7 +52,14 @@ class LoginUserSerializer(serializers.Serializer):
 
         return user
 
+    @staticmethod
+    def get_token(user):
+        token = RefreshToken.for_user(user)
+        return str(token.access_token)
 
-class GFGSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=255, required=True)
 
+class GFGDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GFGData
+        fields = '__all__'
+        extra_kwargs: {'user': {'write_only': True}}

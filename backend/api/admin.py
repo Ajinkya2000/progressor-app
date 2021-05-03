@@ -1,10 +1,10 @@
 from django import forms
 from django.contrib import admin
-from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.contrib.auth.models import Group
 
-from .models import User
+from .models import User, GFGData
 
 
 class UserCreationForm(forms.ModelForm):
@@ -12,7 +12,7 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('email', 'name', 'gfg_handle', 'leetcode_handle')
+        fields = ('email', 'name',)
 
     def save(self, commit=True):
         # Save the provided password in hashed format
@@ -43,11 +43,11 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('email', 'name', 'is_superuser', 'is_staff')
-    list_filter = ('is_staff', 'gfg_handle', 'leetcode_handle')
+    list_display = ('name', 'email', 'is_active', 'is_staff', 'is_superuser')
+    list_filter = ('is_staff', 'is_active')
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('name', 'gfg_handle', 'leetcode_handle', 'is_verified', 'handle_verified')}),
+        ('Personal info', {'fields': ('name', 'handle_verified')}),
         ('Permissions', {'fields': ('is_staff',)}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
@@ -55,7 +55,7 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'name', 'password'),
+            'fields': ('email', 'name', 'password',),
         }),
     )
     search_fields = ('email', 'name')
@@ -63,8 +63,11 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = ()
 
 
-# Now register the new UserAdmin...
+class GFGUserDataAdmin(admin.ModelAdmin):
+    list_display = ['user', 'total_questions', 'coding_score']
+
+
 admin.site.register(User, UserAdmin)
-# ... and, since we're not using Django's built-in permissions,
-# unregister the Group model from admin.
+admin.site.register(GFGData, GFGUserDataAdmin)
+
 admin.site.unregister(Group)
