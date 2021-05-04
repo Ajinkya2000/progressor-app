@@ -2,7 +2,7 @@ import smtplib
 import requests
 from datetime import date
 
-URL = 'http:///api/update/'
+URL = 'https://serene-reaches-13440.herokuapp.com/api/update/'
 r = requests.get(URL)
 data = r.json()['data']
 
