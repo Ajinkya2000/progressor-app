@@ -3,9 +3,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from scripts.gfg_data import getGFGDetails
-from .models import User, GFGData
-from .serializers import RegisterUserSerializer, LoginUserSerializer, GFGDataSerializer
-from .utils import TokenUtils, send_email_on_user_creation, send_email_on_database_update
+from scripts.leetcode_data import getLeetcodeData
+
+from .models import User, GFGData, LeetcodeData
+from .serializers import RegisterUserSerializer, LoginUserSerializer, GFGDataSerializer, LeetcodeDataSerializer
+from .utils import TokenUtils, send_email_on_user_creation, send_email_on_database_update, send_email_on_user_creation_leetcode
 
 
 class RegisterUserView(APIView):
@@ -108,6 +110,42 @@ class GFGDataView(APIView):
 
             return Response({'data': serializer1.data}, status=status.HTTP_200_OK)
         return Response({**serializer.errors, **serializer1.errors}, status=status.HTTP_200_OK)
+
+
+class LeetcodeDataView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        # GET USER MODEL FROM TOKEN
+        user = TokenUtils.get_user_from_token(self, request)
+
+        # CHECK IF LEETCODE DATA FOR USER ALREADY EXISTS
+        handle = request.data['leetcode_handle']
+
+        # noinspection PyBroadException
+        try:
+            handleData = LeetcodeData.objects.get(user=user.id, leetcode_handle=handle)
+            if handleData:
+                return Response({'error': "User already Exists"}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            pass
+
+            # GET LEETCODE DATA FROM SCRIPT
+            script_data = getLeetcodeData(request.data['leetcode_handle'])
+            if 'error' in script_data:
+                return Response(script_data, status=status.HTTP_400_BAD_REQUEST)
+
+            # SERIALIZERS
+            serializer = RegisterUserSerializer(instance=user, data={'handle_verified': True}, partial=True)
+            serializer1 = LeetcodeDataSerializer(data={'user': user.id, **script_data, 'leetcode_handle': handle})
+
+            if serializer.is_valid(raise_exception=True) and serializer1.is_valid(raise_exception=True):
+                serializer1.save()
+                serializer.save()
+                send_email_on_user_creation_leetcode({**serializer.data, **serializer1.data})
+
+                return Response({'data': serializer1.data}, status=status.HTTP_200_OK)
+            return Response({**serializer.errors, **serializer1.errors}, status=status.HTTP_200_OK)
 
 
 class UpdateDataView(APIView):

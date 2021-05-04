@@ -54,3 +54,20 @@ class GFGData(models.Model):
 
     def __str__(self):
         return f'{self.user.name}\'s GFG Data'
+
+
+class LeetcodeData(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    leetcode_handle = models.CharField(max_length=255)
+    total_questions = models.IntegerField(default=0)
+    points = models.IntegerField(default=0)
+    easy = models.IntegerField(default=0)
+    medium = models.IntegerField(default=0)
+    hard = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Leetcode Data"
+        verbose_name_plural = "Leetcode Data"
+
+    def __str__(self):
+        return f'{self.user.name}\'s Leetcode Data'

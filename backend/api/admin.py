@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.models import Group
 
-from .models import User, GFGData
+from .models import User, GFGData, LeetcodeData
 
 
 class UserCreationForm(forms.ModelForm):
@@ -67,7 +67,12 @@ class GFGUserDataAdmin(admin.ModelAdmin):
     list_display = ['user', 'total_questions', 'coding_score']
 
 
+class LeetcodeUserDataAdmin(admin.ModelAdmin):
+    list_display = ['user', 'total_questions', 'points']
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(GFGData, GFGUserDataAdmin)
+admin.site.register(LeetcodeData, LeetcodeUserDataAdmin)
 
 admin.site.unregister(Group)

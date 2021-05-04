@@ -48,6 +48,7 @@ def getLeetcodeData(username):
         return {
             'leetcode_handle': username,
             'points': points,
+            'total_questions': total_problems,
             'easy': easy,
             'medium': medium,
             'hard': hard,

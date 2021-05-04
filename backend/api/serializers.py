@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import User, GFGData
+from .models import User, GFGData, LeetcodeData
 
 
 class RegisterUserSerializer(serializers.ModelSerializer):
@@ -64,3 +64,9 @@ class GFGDataSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs: {'user': {'write_only': True}}
 
+
+class LeetcodeDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LeetcodeData
+        fields = '__all__'
+        extra_kwargs: {'user': {'write_only': True}}
