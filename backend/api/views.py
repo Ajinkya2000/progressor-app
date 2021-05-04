@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from scripts.gfg_data import getGFGDetails
 from .models import User, GFGData
 from .serializers import RegisterUserSerializer, LoginUserSerializer, GFGDataSerializer
-from .utils import TokenUtils, send_email_on_user_creation
+from .utils import TokenUtils, send_email_on_user_creation, send_email_on_database_update
 
 
 class RegisterUserView(APIView):
@@ -109,3 +109,36 @@ class GFGDataView(APIView):
             return Response({'data': serializer1.data}, status=status.HTTP_200_OK)
         return Response({**serializer.errors, **serializer1.errors}, status=status.HTTP_200_OK)
 
+
+class UpdateDataView(APIView):
+    def get(self, request):
+        email_sent_list = []
+        queryset = User.objects.all()[1:]
+        for user in queryset:
+            gfg_data_instance_array = GFGData.objects.filter(user=user.id)
+            if not gfg_data_instance_array:
+                continue
+
+            gfg_data_instance = gfg_data_instance_array[0]
+            gfg_data_serialized = GFGDataSerializer(gfg_data_instance).data
+            gfg_handle = gfg_data_serialized['gfg_handle']
+
+            diff = {}
+            new_script_data = getGFGDetails(gfg_handle)
+
+            for keys in new_script_data:
+                diff[keys] = new_script_data[keys] - gfg_data_serialized[keys]
+
+            serializer = GFGDataSerializer(instance=gfg_data_instance, data=new_script_data, partial=True)
+
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+
+                new_script_data['name'] = user.name
+                new_script_data['email'] = user.email
+                new_script_data['gfg_handle'] = gfg_handle
+
+                send_email_on_database_update(new_script_data, diff)
+                email_sent_list.append(user.name)
+
+        return Response({'data': email_sent_list}, status=status.HTTP_200_OK)

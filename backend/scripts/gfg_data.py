@@ -2,21 +2,26 @@ from pathlib import Path
 from selenium import webdriver
 import os
 
+
 def getGFGDetails(username):
     BASE_DIR = Path(__file__).resolve().parent.parent
     SCRIPTS_DIR = BASE_DIR / 'scripts'
 
     URL = f'https://auth.geeksforgeeks.org/user/{username}/practice/'
 
+    """DEVELOPMENT"""
     # options = webdriver.ChromeOptions()
+    # options.headless = True
+    # browser = webdriver.Chrome(f'{SCRIPTS_DIR}/chromedriver', options=options)
+
+    """PRODUCTION"""
     chrome_options = webdriver.ChromeOptions()
     chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--no-sandbox")
     browser = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
-    # options.headless = True
-    # browser = webdriver.Chrome(f'{SCRIPTS_DIR}/chromedriver', options=options)
+
     browser.get(URL)
 
     try:

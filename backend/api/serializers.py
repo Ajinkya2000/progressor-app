@@ -63,3 +63,4 @@ class GFGDataSerializer(serializers.ModelSerializer):
         model = GFGData
         fields = '__all__'
         extra_kwargs: {'user': {'write_only': True}}
+
