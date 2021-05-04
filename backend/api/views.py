@@ -151,7 +151,7 @@ class LeetcodeDataView(APIView):
 class UpdateDataView(APIView):
     def get(self, request):
         email_sent_list = []
-        queryset = User.objects.all()[1:]
+        queryset = User.objects.all()
         for user in queryset:
             gfg_data_instance_array = GFGData.objects.filter(user=user.id)
             if not gfg_data_instance_array:
