@@ -45,7 +45,6 @@ def getLeetcodeData(username):
         points = points_element.get_attribute('innerHTML')
 
         return {
-            'leetcode_handle': username,
             'points': points,
             'total_questions': total_problems,
             'easy': easy,

@@ -6,8 +6,12 @@ from scripts.gfg_data import getGFGDetails
 from scripts.leetcode_data import getLeetcodeData
 
 from .models import User, GFGData, LeetcodeData
-from .serializers import RegisterUserSerializer, LoginUserSerializer, GFGDataSerializer, LeetcodeDataSerializer
-from .utils import TokenUtils, send_email_on_user_creation, send_email_on_database_update, send_email_on_user_creation_leetcode
+from .serializers import (RegisterUserSerializer, LoginUserSerializer,
+                          GFGDataSerializer, LeetcodeDataSerializer)
+
+from .utils import (TokenUtils,
+                    send_email_on_user_creation, send_email_on_user_creation_leetcode,
+                    updateGFGData, updateLeetcodeData)
 
 
 class RegisterUserView(APIView):
@@ -100,7 +104,7 @@ class GFGDataView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         # SERIALIZERS
-        serializer = RegisterUserSerializer(instance=user, data={'handle_verified': True}, partial=True)
+        serializer = RegisterUserSerializer(instance=user, data={'handle_verified': True, 'is_gfg': True}, partial=True)
         serializer1 = GFGDataSerializer(data={'user': user.id, **script_data, 'gfg_handle': handle})
 
         if serializer.is_valid(raise_exception=True) and serializer1.is_valid(raise_exception=True):
@@ -149,34 +153,11 @@ class LeetcodeDataView(APIView):
 
 
 class UpdateDataView(APIView):
-    def get(self, request):
-        email_sent_list = []
+    @staticmethod
+    def get(request):
         queryset = User.objects.all()
-        for user in queryset:
-            gfg_data_instance_array = GFGData.objects.filter(user=user.id)
-            if not gfg_data_instance_array:
-                continue
 
-            gfg_data_instance = gfg_data_instance_array[0]
-            gfg_data_serialized = GFGDataSerializer(gfg_data_instance).data
-            gfg_handle = gfg_data_serialized['gfg_handle']
+        email_list_gfg = updateGFGData(queryset)
+        email_list_leetcode = updateLeetcodeData(queryset)
 
-            diff = {}
-            new_script_data = getGFGDetails(gfg_handle)
-
-            for keys in new_script_data:
-                diff[keys] = new_script_data[keys] - gfg_data_serialized[keys]
-
-            serializer = GFGDataSerializer(instance=gfg_data_instance, data=new_script_data, partial=True)
-
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-
-                new_script_data['name'] = user.name
-                new_script_data['email'] = user.email
-                new_script_data['gfg_handle'] = gfg_handle
-
-                send_email_on_database_update(new_script_data, diff)
-                email_sent_list.append(user.name)
-
-        return Response({'data': email_sent_list}, status=status.HTTP_200_OK)
+        return Response({'data': email_list_gfg+email_list_leetcode}, status=status.HTTP_200_OK)

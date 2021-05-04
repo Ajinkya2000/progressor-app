@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.models import Group
 
-from .models import User, GFGData, LeetcodeData
+from .models import User, GFGData, LeetcodeData, DailyGFGData, DailyLeetcodeData
 
 
 class UserCreationForm(forms.ModelForm):
@@ -47,7 +47,7 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ('is_staff', 'is_active')
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('name', 'handle_verified')}),
+        ('Personal info', {'fields': ('name', 'handle_verified', 'is_gfg')}),
         ('Permissions', {'fields': ('is_staff',)}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
@@ -71,8 +71,14 @@ class LeetcodeUserDataAdmin(admin.ModelAdmin):
     list_display = ['user', 'total_questions', 'points']
 
 
+class DailyDataAdmin(admin.ModelAdmin):
+    list_display = ['user', 'total_questions', 'easy', 'medium', 'hard', 'date']
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(GFGData, GFGUserDataAdmin)
 admin.site.register(LeetcodeData, LeetcodeUserDataAdmin)
+admin.site.register(DailyGFGData, DailyDataAdmin)
+admin.site.register(DailyLeetcodeData, DailyDataAdmin)
 
 admin.site.unregister(Group)

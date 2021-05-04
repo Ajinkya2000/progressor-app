@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import User, GFGData, LeetcodeData
+from .models import User, GFGData, LeetcodeData, DailyGFGData, DailyLeetcodeData
 
 
 class RegisterUserSerializer(serializers.ModelSerializer):
@@ -11,7 +11,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'name', 'password', 'handle_verified', 'token',)
+        fields = ('id', 'email', 'name', 'password', 'handle_verified', 'token', 'is_gfg',)
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -21,6 +21,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         instance.email = validated_data.get('email', instance.email)
         instance.name = validated_data.get('name', instance.name)
         instance.handle_verified = validated_data.get('handle_verified', instance.handle_verified)
+        instance.is_gfg = validated_data.get('is_gfg', instance.is_gfg)
         instance.save()
         return instance
 
@@ -37,7 +38,7 @@ class LoginUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'name', 'password', 'handle_verified', 'token',)
+        fields = ('id', 'email', 'name', 'password', 'handle_verified', 'token', 'is_gfg',)
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, data):
@@ -70,3 +71,15 @@ class LeetcodeDataSerializer(serializers.ModelSerializer):
         model = LeetcodeData
         fields = '__all__'
         extra_kwargs: {'user': {'write_only': True}}
+
+
+class DailyGFGDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DailyGFGData
+        fields = '__all__'
+
+
+class DailyLeetcodeDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DailyLeetcodeData
+        fields = '__all__'
