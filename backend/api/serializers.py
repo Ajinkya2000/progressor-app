@@ -6,12 +6,11 @@ from .models import User, GFGData, LeetcodeData, DailyGFGData, DailyLeetcodeData
 
 
 class RegisterUserSerializer(serializers.ModelSerializer):
-    token = serializers.SerializerMethodField(read_only=True)
     name = serializers.CharField(max_length=255, required=True)
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'name', 'password', 'handle_verified', 'token', 'is_gfg',)
+        fields = ('id', 'email', 'name', 'password', 'handle_verified', 'is_gfg',)
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -25,20 +24,14 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    @staticmethod
-    def get_token(user):
-        token = RefreshToken.for_user(user)
-        return str(token.access_token)
-
 
 class LoginUserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255)
     name = serializers.CharField(max_length=255, read_only=True)
-    token = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'name', 'password', 'handle_verified', 'token', 'is_gfg',)
+        fields = ('id', 'email', 'name', 'password', 'handle_verified', 'is_gfg',)
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, data):
@@ -52,11 +45,6 @@ class LoginUserSerializer(serializers.ModelSerializer):
             )
 
         return user
-
-    @staticmethod
-    def get_token(user):
-        token = RefreshToken.for_user(user)
-        return str(token.access_token)
 
 
 class GFGDataSerializer(serializers.ModelSerializer):

@@ -2,6 +2,8 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from scripts.gfg_data import getGFGDetails
 from scripts.leetcode_data import getLeetcodeData
 
@@ -21,8 +23,9 @@ class RegisterUserView(APIView):
         # noinspection PyBroadException
         try:
             if serializer.is_valid(raise_exception=True):
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                user = serializer.save()
+                token = str(RefreshToken.for_user(user).access_token)
+                return Response({**serializer.data, 'token': token}, status=status.HTTP_201_CREATED)
         except:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -31,10 +34,13 @@ class LoginUserView(APIView):
     @staticmethod
     def post(request):
         serializer = LoginUserSerializer(data=request.data)
+        print(serializer)
         # noinspection PyBroadException
         try:
             if serializer.is_valid(raise_exception=True):
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                user = User.objects.get(id=serializer.data['id'])
+                token = str(RefreshToken.for_user(user).access_token)
+                return Response({**serializer.data, 'token': token}, status=status.HTTP_200_OK)
         except:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
