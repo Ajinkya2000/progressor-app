@@ -3,7 +3,7 @@ from selenium import webdriver
 import os
 
 
-def getLeetcodeData(username):
+def getLeetcodeData(username='ajinkya2000'):
     BASE_DIR = Path(__file__).resolve().parent.parent
     SCRIPTS_DIR = BASE_DIR / 'scripts'
 
@@ -26,33 +26,22 @@ def getLeetcodeData(username):
     browser.implicitly_wait(10)
 
     try:
-        # Total Questions Solved
-        total_problems_element = browser.find_element_by_xpath('//*[@id="profile-root"]/div[2]/div/div[2]/div[1]/div[1]/div/div[1]/div[1]/div[2]')
-        total_problems = total_problems_element.get_attribute('innerHTML')
+        levels = ['Easy', 'Medium', 'Hard']
+        levels_dict = {'total_questions': 0}
 
         # Types of Questions
-        easy_element = browser.find_element_by_xpath('//*[@id="profile-root"]/div[2]/div/div[2]/div[1]/div[1]/div/div[2]/div/div[1]/div[2]/span[1]')
-        easy = easy_element.get_attribute('innerHTML')
+        for level in levels:
+            level_div = browser.find_element_by_css_selector(f"div[data-difficulty='{level}']")
+            levels_dict[level.lower()] = int(level_div.find_element_by_tag_name('span').get_attribute('innerHTML'))
+            levels_dict['total_questions'] += levels_dict[level.lower()]
 
-        medium_element = browser.find_element_by_xpath('//*[@id="profile-root"]/div[2]/div/div[2]/div[1]/div[1]/div/div[2]/div/div[2]/div[2]/span[1]')
-        medium = medium_element.get_attribute('innerHTML')
-
-        hard_element = browser.find_element_by_xpath('//*[@id="profile-root"]/div[2]/div/div[2]/div[1]/div[1]/div/div[2]/div/div[3]/div[2]/span[1]')
-        hard = hard_element.get_attribute('innerHTML')
 
         # Points
         points_element = browser.find_element_by_xpath('//*[@id="profile-root"]/div[2]/div/div[1]/div[2]/div[2]/div/div/div/li[1]/span')
-        points = points_element.get_attribute('innerHTML')
+        points = int(points_element.get_attribute('innerHTML'))
 
-        return {
-            'points': points,
-            'total_questions': total_problems,
-            'easy': easy,
-            'medium': medium,
-            'hard': hard,
-        }
+        return {**levels_dict, 'points': points}
     except:
         return {
             'error': ['Check the username you have entered!']
         }
-
