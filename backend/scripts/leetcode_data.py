@@ -3,7 +3,7 @@ from selenium import webdriver
 import os
 
 
-def getLeetcodeData(username='ajinkya2000'):
+def getLeetcodeData(username):
     BASE_DIR = Path(__file__).resolve().parent.parent
     SCRIPTS_DIR = BASE_DIR / 'scripts'
 
