@@ -623,3 +623,5 @@ def process_tasks():
 
     timer = threading.Timer(100, on_timeout, (process_tasks_subprocess,))
     timer.start()
+    process_tasks_subprocess.wait()
+    timer.cancel()
