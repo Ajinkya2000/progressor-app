@@ -1,7 +1,7 @@
 import pytz
 import shlex
 import subprocess
-import time
+import threading
 from datetime import datetime
 
 from background_task import background
@@ -612,9 +612,14 @@ def updateLeetcodeData(queryset):
     print("LEETCODE DATA UPDATED")
 
 
+def on_timeout(process_tasks_subprocess):
+    process_tasks_subprocess.kill()
+
+
 def process_tasks():
     process_tasks_cmd = "python3 backend/manage.py process_tasks"
     process_tasks_args = shlex.split(process_tasks_cmd)
     process_tasks_subprocess = subprocess.Popen(process_tasks_args)
 
-
+    timer = threading.Timer(100, on_timeout, (process_tasks_subprocess,))
+    timer.start()

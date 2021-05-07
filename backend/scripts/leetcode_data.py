@@ -36,7 +36,8 @@ def getLeetcodeData(username):
             levels_dict['total_questions'] += levels_dict[level.lower()]
 
         # Points
-        points_element = browser.find_element_by_xpath('//*[@id="profile-root"]/div[2]/div/div[1]/div[2]/div[2]/div/div/div/li[1]/span')
+        points_element = browser.find_element_by_xpath(
+            '//*[@id="profile-root"]/div[2]/div/div[1]/div[2]/div[2]/div/div/div/li[1]/span')
         points = int(points_element.get_attribute('innerHTML'))
 
         return {**levels_dict, 'points': points}
