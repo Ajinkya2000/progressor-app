@@ -613,8 +613,10 @@ def updateLeetcodeData(queryset):
 
 
 def process_tasks():
-    process_tasks_cmd = "python manage.py process_tasks"
+    process_tasks_cmd = "python3 manage.py process_tasks"
     process_tasks_args = shlex.split(process_tasks_cmd)
     process_tasks_subprocess = subprocess.Popen(process_tasks_args)
+    time.sleep(20)
+    process_tasks_subprocess.kill()
 
 

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterUserView, LoginUserView, GetUsersView, GFGDataView, GetAndUpdateUserView, UpdateDataView, LeetcodeDataView
+from .views import RegisterUserView, LoginUserView, GetUsersView, GFGDataView, GetAndUpdateUserView, UpdateDataView, LeetcodeDataView, RealUpdate
 
 urlpatterns = [
     path('register/', RegisterUserView.as_view(), name="register_user"),
@@ -9,4 +9,5 @@ urlpatterns = [
     path('gfg/', GFGDataView.as_view(), name="gfg_data"),
     path('leetcode/', LeetcodeDataView.as_view(), name="leetcode_data"),
     path('update/', UpdateDataView.as_view(), name="update_data"),
+    path('update-final/', RealUpdate.as_view(), name="update_data_real"),
 ]

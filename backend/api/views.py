@@ -1,19 +1,13 @@
-from django.core import management
-import subprocess
-
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from scripts.gfg_data import getGFGDetails
 from scripts.leetcode_data import getLeetcodeData
-
 from .models import User, GFGData, LeetcodeData
 from .serializers import (RegisterUserSerializer, LoginUserSerializer,
                           GFGDataSerializer, LeetcodeDataSerializer)
-
 from .utils import (TokenUtils,
                     send_email_on_user_creation, send_email_on_user_creation_leetcode,
                     updateGFGData, updateLeetcodeData, process_tasks)
@@ -170,6 +164,10 @@ class UpdateDataView(APIView):
         updateGFGData(serializer.data)
         updateLeetcodeData(serializer.data)
 
-        process_tasks()
-
         return Response({'data': 'Sending Email'}, status=status.HTTP_200_OK)
+
+
+class RealUpdate(APIView):
+    def get(self, request):
+        process_tasks()
+        return Response({'data': 'Done'}, status=200)
