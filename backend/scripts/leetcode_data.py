@@ -10,9 +10,9 @@ def getLeetcodeData(username):
     URL = f'https://leetcode.com/{username}/'
 
     """DEVELOPMENT"""
-    options = webdriver.ChromeOptions()
-    options.headless = True
-    browser = webdriver.Chrome(f'{SCRIPTS_DIR}/chromedriver', options=options)
+    # options = webdriver.ChromeOptions()
+    # options.headless = True
+    # browser = webdriver.Chrome(f'{SCRIPTS_DIR}/chromedriver', options=options)
 
     """PRODUCTION"""
     chrome_options = webdriver.ChromeOptions()
