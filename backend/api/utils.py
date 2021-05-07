@@ -536,7 +536,7 @@ def send_email_on_database_update_leetcode(new_data, diff):
     )
 
 
-@background(schedule=19800)
+@background(schedule=19805)
 def updateGFGData(queryset):
     email_sent_list = []
     for user in queryset:
@@ -574,7 +574,7 @@ def updateGFGData(queryset):
     print("GFG DATA UPDATED")
 
 
-@background(schedule=19800)
+@background(schedule=19805)
 def updateLeetcodeData(queryset):
     email_sent_list = []
     for user in queryset:

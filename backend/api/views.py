@@ -164,6 +164,8 @@ class UpdateDataView(APIView):
         queryset = User.objects.all()
         serializer = RegisterUserSerializer(queryset, many=True)
 
+        print("Update")
+
         process_tasks()
 
         updateGFGData(serializer.data)
