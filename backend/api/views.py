@@ -164,10 +164,6 @@ class UpdateDataView(APIView):
         updateGFGData(serializer.data)
         updateLeetcodeData(serializer.data)
 
-        return Response({'data': 'Sending Email'}, status=status.HTTP_200_OK)
-
-
-class RealUpdate(APIView):
-    def get(self, request):
         process_tasks()
-        return Response({'data': 'Done'}, status=200)
+
+        return Response({'data': 'Sending Email'}, status=status.HTTP_200_OK)
