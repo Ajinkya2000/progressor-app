@@ -1,3 +1,6 @@
+from django.core import management
+import subprocess
+
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -164,11 +167,9 @@ class UpdateDataView(APIView):
         queryset = User.objects.all()
         serializer = RegisterUserSerializer(queryset, many=True)
 
-        print("Update")
-
-        process_tasks()
-
         updateGFGData(serializer.data)
         updateLeetcodeData(serializer.data)
+
+        process_tasks()
 
         return Response({'data': 'Sending Email'}, status=status.HTTP_200_OK)

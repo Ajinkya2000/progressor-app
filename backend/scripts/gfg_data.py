@@ -10,17 +10,17 @@ def getGFGDetails(username):
     URL = f'https://auth.geeksforgeeks.org/user/{username}/practice/'
 
     """DEVELOPMENT"""
-    # options = webdriver.ChromeOptions()
-    # options.headless = True
-    # browser = webdriver.Chrome(f'{SCRIPTS_DIR}/chromedriver', options=options)
+    options = webdriver.ChromeOptions()
+    options.headless = True
+    browser = webdriver.Chrome(f'{SCRIPTS_DIR}/chromedriver', options=options)
 
     """PRODUCTION"""
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--no-sandbox")
-    browser = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
+    # chrome_options = webdriver.ChromeOptions()
+    # chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    # chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--disable-dev-shm-usage")
+    # chrome_options.add_argument("--no-sandbox")
+    # browser = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
 
     browser.get(URL)
 

@@ -1,15 +1,15 @@
-import subprocess
-import shlex
 import pytz
-from datetime import date, datetime
-from django.utils import timezone
-from django.core.mail import send_mail
+import shlex
+import subprocess
+import time
+from datetime import datetime
+
 from background_task import background
+from django.core.mail import send_mail
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from scripts.gfg_data import getGFGDetails
 from scripts.leetcode_data import getLeetcodeData
-
 from .models import GFGData, LeetcodeData
 from .serializers import (GFGDataSerializer, LeetcodeDataSerializer,
                           DailyGFGDataSerializer, DailyLeetcodeDataSerializer)
@@ -536,7 +536,7 @@ def send_email_on_database_update_leetcode(new_data, diff):
     )
 
 
-@background(schedule=19805)
+@background(schedule=5)
 def updateGFGData(queryset):
     email_sent_list = []
     for user in queryset:
@@ -574,7 +574,7 @@ def updateGFGData(queryset):
     print("GFG DATA UPDATED")
 
 
-@background(schedule=19805)
+@background(schedule=5)
 def updateLeetcodeData(queryset):
     email_sent_list = []
     for user in queryset:
