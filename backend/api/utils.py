@@ -1,8 +1,11 @@
+import subprocess
+import shlex
 import pytz
 from datetime import date, datetime
+from django.utils import timezone
 from django.core.mail import send_mail
+from background_task import background
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
 
 from scripts.gfg_data import getGFGDetails
 from scripts.leetcode_data import getLeetcodeData
@@ -533,10 +536,13 @@ def send_email_on_database_update_leetcode(new_data, diff):
     )
 
 
+@background(schedule=5)
 def updateGFGData(queryset):
     email_sent_list = []
     for user in queryset:
-        gfg_data_instance_array = GFGData.objects.filter(user=user.id)
+        if not user:
+            return
+        gfg_data_instance_array = GFGData.objects.filter(user=user['id'])
         if not gfg_data_instance_array:
             continue
 
@@ -551,26 +557,30 @@ def updateGFGData(queryset):
             diff[keys] = new_script_data[keys] - gfg_data_serialized[keys]
 
         serializer = GFGDataSerializer(instance=gfg_data_instance, data=new_script_data, partial=True)
-        serializer1 = DailyGFGDataSerializer(data={'user': user.id, **diff})
+        serializer1 = DailyGFGDataSerializer(data={'user': user['id'], **diff})
 
         if serializer.is_valid(raise_exception=True) and serializer1.is_valid(raise_exception=True):
             serializer.save()
             serializer1.save()
 
-            new_script_data['name'] = user.name
-            new_script_data['email'] = user.email
+            new_script_data['name'] = user['name']
+            new_script_data['email'] = user['email']
             new_script_data['gfg_handle'] = gfg_handle
 
             send_email_on_database_update_gfg(new_script_data, diff)
-            email_sent_list.append(user.name)
+            email_sent_list.append(user['name'])
 
-    return email_sent_list
+    print(email_sent_list)
+    print("GFG DATA UPDATED")
 
 
+@background(schedule=5)
 def updateLeetcodeData(queryset):
     email_sent_list = []
     for user in queryset:
-        leetcode_data_instance_array = LeetcodeData.objects.filter(user=user.id)
+        if not user:
+            return
+        leetcode_data_instance_array = LeetcodeData.objects.filter(user=user['id'])
         if not leetcode_data_instance_array:
             continue
 
@@ -585,17 +595,26 @@ def updateLeetcodeData(queryset):
             diff[keys] = int(new_script_data[keys]) - int(leetcode_data_serialized[keys])
 
         serializer = LeetcodeDataSerializer(instance=leetcode_data_instance, data=new_script_data, partial=True)
-        serializer1 = DailyLeetcodeDataSerializer(data={'user': user.id, **diff})
+        serializer1 = DailyLeetcodeDataSerializer(data={'user': user['id'], **diff})
 
         if serializer.is_valid(raise_exception=True) and serializer1.is_valid(raise_exception=True):
             serializer.save()
             serializer1.save()
 
-            new_script_data['name'] = user.name
-            new_script_data['email'] = user.email
+            new_script_data['name'] = user['name']
+            new_script_data['email'] = user['email']
             new_script_data['leetcode_handle'] = leetcode_handle
 
             send_email_on_database_update_leetcode(new_script_data, diff)
-            email_sent_list.append(user.name)
+            email_sent_list.append(user['name'])
 
-    return email_sent_list
+    print(email_sent_list)
+    print("LEETCODE DATA UPDATED")
+
+
+def process_tasks():
+    process_tasks_cmd = "python manage.py process_tasks"
+    process_tasks_args = shlex.split(process_tasks_cmd)
+    process_tasks_subprocess = subprocess.Popen(process_tasks_args)
+
+

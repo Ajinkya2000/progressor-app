@@ -13,7 +13,7 @@ from .serializers import (RegisterUserSerializer, LoginUserSerializer,
 
 from .utils import (TokenUtils,
                     send_email_on_user_creation, send_email_on_user_creation_leetcode,
-                    updateGFGData, updateLeetcodeData)
+                    updateGFGData, updateLeetcodeData, process_tasks)
 
 
 class RegisterUserView(APIView):
@@ -162,8 +162,11 @@ class UpdateDataView(APIView):
     @staticmethod
     def get(request):
         queryset = User.objects.all()
+        serializer = RegisterUserSerializer(queryset, many=True)
 
-        email_list_gfg = updateGFGData(queryset)
-        email_list_leetcode = updateLeetcodeData(queryset)
+        process_tasks()
 
-        return Response({'data': email_list_gfg+email_list_leetcode}, status=status.HTTP_200_OK)
+        updateGFGData(serializer.data)
+        updateLeetcodeData(serializer.data)
+
+        return Response({'data': 'Sending Email'}, status=status.HTTP_200_OK)
