@@ -2,6 +2,8 @@ import pytz
 import shlex
 import subprocess
 import threading
+import os
+import signal
 from datetime import datetime
 
 from background_task import background
@@ -613,15 +615,13 @@ def updateLeetcodeData(queryset):
 
 
 def on_timeout(process_tasks_subprocess):
-    process_tasks_subprocess.kill()
+    os.killpg(os.getpgid(process_tasks_subprocess.pid), signal.SIGTERM)
 
 
 def process_tasks():
     process_tasks_cmd = "python3 backend/manage.py process_tasks"
     process_tasks_args = shlex.split(process_tasks_cmd)
-    process_tasks_subprocess = subprocess.Popen(process_tasks_args)
+    process_tasks_subprocess = subprocess.Popen(process_tasks_args, preexec_fn=os.setsid)
 
     timer = threading.Timer(100, on_timeout, (process_tasks_subprocess,))
     timer.start()
-    process_tasks_subprocess.wait()
-    timer.cancel()
