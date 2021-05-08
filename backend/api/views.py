@@ -96,7 +96,7 @@ class GFGDataView(APIView):
         try:
             handleData = GFGData.objects.get(user=user.id, gfg_handle=handle)
             if handleData:
-                return Response({'error': "User already Exists"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': ["User data already Exists"]}, status=status.HTTP_400_BAD_REQUEST)
         except:
             pass
 
