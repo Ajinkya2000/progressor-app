@@ -8,7 +8,7 @@ from scripts.leetcode_data import getLeetcodeData
 from .models import User, GFGData, LeetcodeData
 from .serializers import (RegisterUserSerializer, LoginUserSerializer,
                           GFGDataSerializer, LeetcodeDataSerializer)
-from .utils import (TokenUtils,
+from .utils import (get_user_from_token,
                     send_email_on_user_creation, send_email_on_user_creation_leetcode,
                     updateGFGData, updateLeetcodeData, process_tasks)
 
@@ -31,7 +31,6 @@ class LoginUserView(APIView):
     @staticmethod
     def post(request):
         serializer = LoginUserSerializer(data=request.data)
-        print(serializer)
         # noinspection PyBroadException
         try:
             if serializer.is_valid(raise_exception=True):
@@ -45,13 +44,15 @@ class LoginUserView(APIView):
 class GetAndUpdateUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request):
-        user = TokenUtils.get_user_from_token(self, request)
+    @staticmethod
+    def get(request):
+        user = get_user_from_token(request)
         serializer = RegisterUserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def patch(self, request):
-        user = TokenUtils.get_user_from_token(self, request)
+    @staticmethod
+    def patch(request):
+        user = get_user_from_token(request)
         serializer = RegisterUserSerializer(instance=user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -66,7 +67,7 @@ class GetUsersView(APIView):
     def get(request):
         qs = User.objects.all()
         if not qs:
-            return Response({'error': 'No users were found'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': ['No users were found']}, status=status.HTTP_400_BAD_REQUEST)
         serializer = RegisterUserSerializer(qs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -74,9 +75,10 @@ class GetUsersView(APIView):
 class GFGDataView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request):
+    @staticmethod
+    def get(request):
         # GET USER MODEL FROM TOKEN
-        user = TokenUtils.get_user_from_token(self, request)
+        user = get_user_from_token(request)
 
         if not user.handle_verified:
             return Response({'error': ['Please Enter your handle/username first']}, status=status.HTTP_401_UNAUTHORIZED)
@@ -85,9 +87,10 @@ class GFGDataView(APIView):
         serializer = GFGDataSerializer(gfg_data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         # GET USER MODEL FROM TOKEN
-        user = TokenUtils.get_user_from_token(self, request)
+        user = get_user_from_token(request)
 
         # CHECK IF GFGDATA FOR USER ALREADY EXISTS
         handle = request.data['gfg_handle']
@@ -103,7 +106,7 @@ class GFGDataView(APIView):
         # GET GFG DATA FROM SCRIPT
         script_data = getGFGDetails(request.data['gfg_handle'])
         if 'error' in script_data:
-            return Response({'error': 'Something went Wrong', 'msg': script_data['error']},
+            return Response({'error': ['Something went Wrong'], 'msg': script_data['error']},
                             status=status.HTTP_400_BAD_REQUEST)
 
         # SERIALIZERS
@@ -122,9 +125,10 @@ class GFGDataView(APIView):
 class LeetcodeDataView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         # GET USER MODEL FROM TOKEN
-        user = TokenUtils.get_user_from_token(self, request)
+        user = get_user_from_token(request)
 
         # CHECK IF LEETCODE DATA FOR USER ALREADY EXISTS
         handle = request.data['leetcode_handle']
@@ -166,4 +170,4 @@ class UpdateDataView(APIView):
 
         process_tasks()
 
-        return Response({'data': 'Sending Email'}, status=status.HTTP_200_OK)
+        return Response({'data': ['Sending Email']}, status=status.HTTP_200_OK)

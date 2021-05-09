@@ -23,13 +23,13 @@ def get_date():
     return today
 
 
-class TokenUtils(JWTAuthentication):
-    def get_user_from_token(self, request):
-        header = JWTAuthentication.get_header(self, request)
-        raw_token = JWTAuthentication.get_raw_token(self, header)
-        validated_token = JWTAuthentication.get_validated_token(self, raw_token)
-        user = JWTAuthentication.get_user(self, validated_token)
-        return user
+def get_user_from_token(request):
+    jwt = JWTAuthentication()
+    header = jwt.get_header(request)
+    raw_token = jwt.get_raw_token(header)
+    validated_token = jwt.get_validated_token(raw_token)
+    user = jwt.get_user(validated_token)
+    return user
 
 
 def send_email_on_user_creation(data):
@@ -623,5 +623,5 @@ def process_tasks():
     process_tasks_args = shlex.split(process_tasks_cmd)
     process_tasks_subprocess = subprocess.Popen(process_tasks_args, preexec_fn=os.setsid)
 
-    timer = threading.Timer(100, on_timeout, (process_tasks_subprocess,))
+    timer = threading.Timer(150, on_timeout, (process_tasks_subprocess,))
     timer.start()
