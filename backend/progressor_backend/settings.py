@@ -160,7 +160,7 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': False,
 
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': 'amancenator',
+    'SIGNING_KEY': os.environ['JWT_KEY'],
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,
