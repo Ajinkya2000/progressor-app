@@ -1,10 +1,12 @@
+import os
+
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from scripts.gfg_data import getGFGDetails
-from scripts.leetcode_data import getLeetcodeData
+from scripts.gfg_data import getGFGDetails, getGFGDetailsProd
+from scripts.leetcode_data import getLeetcodeData, getLeetcodeDataProd
 from .models import User, GFGData, LeetcodeData
 from .serializers import (RegisterUserSerializer, LoginUserSerializer,
                           GFGDataSerializer, LeetcodeDataSerializer)
@@ -104,7 +106,10 @@ class GFGDataView(APIView):
             pass
 
         # GET GFG DATA FROM SCRIPT
-        script_data = getGFGDetails(request.data['gfg_handle'])
+        if 'DYNO' in os.environ:
+            script_data = getGFGDetailsProd(request.data['gfg_handle'])
+        else:
+            script_data = getGFGDetails(request.data['gfg_handle'])
         if 'error' in script_data:
             return Response({'error': ['Something went Wrong'], 'msg': script_data['error']},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -142,7 +147,10 @@ class LeetcodeDataView(APIView):
             pass
 
             # GET LEETCODE DATA FROM SCRIPT
-            script_data = getLeetcodeData(request.data['leetcode_handle'])
+            if 'DYNO' in os.environ:
+                script_data = getLeetcodeDataProd(request.data['leetcode_handle'])
+            else:
+                script_data = getLeetcodeData(request.data['leetcode_handle'])
             if 'error' in script_data:
                 return Response(script_data, status=status.HTTP_400_BAD_REQUEST)
 
